@@ -11,12 +11,28 @@ const index = (req, res) => {
 
 const show = (req, res) => {
   const id = req.params.id;
-  const sql = `SELECT * FROM posts WHERE id = ?`;
+  const sqlPosts = `SELECT * FROM posts WHERE id = ?`;
+  const sqlTags = `
+    SELECT T.* 
+    FROM tags AS T
+    JOIN post_tag AS PT ON PT.tag_id = T.id
+    WHERE PT.post_id = ?
+    `
 
-  connection.query(sql, [id], (err, results) => {
+  connection.query(sqlPosts, [id], (err, results) => {
     if (err) return res.status(500).json({ error: err.message });
     if (results.length === 0) return res.status(404).json({ error: 'Risorsa non trovata' });
-    res.json(results[0]);
+
+    const post = results[0];
+
+    connection.query(sqlTags, [id], (err, results) => {
+      if (err) return res.status(500).json({ error: err.message });
+      if (results.length === 0) return res.status(404).json({ error: 'Risorsa non trovata' });
+
+      post.tags = results;
+      res.json(post);
+    })
+
   })
 }
 
