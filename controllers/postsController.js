@@ -4,7 +4,7 @@ const index = (req, res) => {
   const sql = `SELECT * FROM posts`;
 
   connection.query(sql, (err, results) => {
-    if (err) return res.json({ error: err.message });
+    if (err) return res.status(500).json({ error: err.message });
     res.json(results);
   })
 }
@@ -30,7 +30,12 @@ const modify = (req, res) => {
 
 const destroy = (req, res) => {
   const id = req.params.id;
-  res.send(`Elimino il post con id: ${id}`);
+  const sql = `DELETE FROM posts WHERE id = ?`;
+
+  connection.query(sql, [id], (err) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.sendStatus(204);
+  })
 }
 
 export {
