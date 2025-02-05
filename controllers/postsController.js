@@ -1,7 +1,12 @@
 import connection from "../data/db.js";
 
 const index = (req, res) => {
-  res.send('Elenco dei post');
+  const sql = `SELECT * FROM posts`;
+
+  connection.query(sql, (err, results) => {
+    if (err) return res.json({ error: err.message });
+    res.json(results);
+  })
 }
 
 const show = (req, res) => {
